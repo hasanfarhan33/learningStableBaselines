@@ -1,5 +1,5 @@
-import gymnasium
-from gymnasium import spaces
+import gym 
+from gym import spaces
 import numpy as np
 import cv2
 import random
@@ -27,7 +27,7 @@ def collision_with_self(snake_position):
 		return 0
 
 
-class SnekEnv(gymnasium.Env):
+class SnekEnv(gym.Env):
 
 	def __init__(self):
 		super(SnekEnv, self).__init__()
@@ -37,9 +37,12 @@ class SnekEnv(gymnasium.Env):
 		self.action_space = spaces.Discrete(4)
 		# Example for using image as input (channel-first; channel-last also works):
 		self.observation_space = spaces.Box(low=-500, high=500,
-											shape=(SNAKE_LEN_GOAL + 5, ), dtype=np.float32)
+											shape=(SNAKE_LEN_GOAL + 5, ), dtype=np.float64)
 
 	def step(self, action):
+		'''
+		Should return observation, reward, terminated, truncated, info
+		'''
 		self.prev_actions.append(action)
 		cv2.imshow('a',self.img)
 		cv2.waitKey(1)
@@ -84,13 +87,13 @@ class SnekEnv(gymnasium.Env):
 			self.img = np.zeros((500,500,3),dtype='uint8')
 			cv2.putText(self.img,'Your Score is {}'.format(self.score),(140,250), font, 1,(255,255,255),2,cv2.LINE_AA)
 			cv2.imshow('a',self.img)
-			self.done = True
+			self.terminated = True
 
 		self.total_reward = len(self.snake_position) - 3  # default length is 3
 		self.reward = self.total_reward - self.prev_reward
 		self.prev_reward = self.total_reward
 
-		if self.done:
+		if self.terminated:
 			self.reward = -10
 		else:
 			self.reward = self.score * 10
@@ -109,11 +112,13 @@ class SnekEnv(gymnasium.Env):
 
 		observation = [head_x, head_y, apple_delta_x, apple_delta_y, snake_length] + list(self.prev_actions)
 		observation = np.array(observation)
+  
+		self.truncated = False 
 
-		return observation, self.reward, self.done, info
+		return observation, self.reward, self.terminated, self.truncated, info
 
 	def reset(self, seed=None, options=None):
-		self.done = False
+		self.terminated = False
 		self.img = np.zeros((500,500,3),dtype='uint8')
 		# Initial Snake and Apple position
 		self.snake_position = [[250,250],[240,250],[230,250]]
@@ -143,4 +148,6 @@ class SnekEnv(gymnasium.Env):
 		observation = [head_x, head_y, apple_delta_x, apple_delta_y, snake_length] + list(self.prev_actions)
 		observation = np.array(observation)
 
-		return observation
+		info = {}
+
+		return observation, info

@@ -8,7 +8,12 @@ for episode in range(episodes):
     obs = env.reset() 
     while not done: 
         random_action = env.action_space.sample()
-        print("action: ", random_action)
-        obs, reward, done, info = env.step(random_action)
-        print("reward", reward)
+        print("\naction: ", random_action)
+        obs, reward, terminated, truncated, info = env.step(random_action)
+        print("observation: ", obs)
+        print("reward: ", reward)
+        print("terminated: ", terminated)
+        print("truncated: ", truncated)
+        print("info: ", info)
+        
 

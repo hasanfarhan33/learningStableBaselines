@@ -23,6 +23,6 @@ iters = 0
 while True:
     iters += 1
     model.learn(total_timesteps=TIMESTEPS, reset_num_timesteps=False, tb_log_name="PPO")
-    model.save(f"{models_dir}/{TIMESTEPS*i}")
+    model.save(f"{models_dir}/{TIMESTEPS*iters}")
     
-    env.close()
+env.close()
